@@ -2,6 +2,11 @@ import "./style.css";
 
 //INIT GLOBAL VARS==========================================================================================================================================
 
+//instructions and game state string
+// deno-lint-ignore prefer-const
+let topText = "Use WASD to move the player. Day 1.";
+let currentDay = 1;
+
 //player object
 interface Player {
     x: number;
@@ -29,12 +34,22 @@ function Start(): void {
     resetButton.style.userSelect = "none"; // Disable text selection
     resetButton.style.cursor = "default"; // Disable text cursor
     document.body.appendChild(resetButton);
+
+    //create button that passes time and calls passTime
+    const passTimeButton = document.createElement("button");
+    passTimeButton.innerHTML = "Sleep";
+    passTimeButton.onclick = passTime;
+    passTimeButton.style.userSelect = "none"; // Disable text selection
+    passTimeButton.style.cursor = "default"; // Disable text cursor
+    document.body.appendChild(passTimeButton);
 }
 
 //FUNCTIONS==================================================================================================================================================
 
 //call on initialize, and when game state should be reset
 function clearDisplayBoard(): void {
+    currentDay = 1;
+    topText = "Use WASD to move the player. Day " + currentDay + ".";
     //clear the board
     for (let i = 0; i < BOARD_HEIGHT; i++) {
         board[i] = [];
@@ -59,7 +74,7 @@ function displayBoard(): void {
 
         //add header with instructions
         const header = document.createElement("h2");
-        header.innerHTML = "Use WASD to move the player";
+        header.innerHTML = topText;
         header.style.userSelect = "none"; // Disable text selection
         header.style.cursor = "default"; // Disable text cursor
         app.prepend(header);
@@ -122,6 +137,12 @@ function movePlayer(dir: string): void {
     displayBoard();
 }
 
+function passTime(): void {
+    currentDay++;
+    topText = "Use WASD to move the player. Day " + currentDay + ".";
+    displayBoard();
+}
+
 //input handling
 document.onkeydown = function(e) {
     switch (e.key) {
@@ -139,6 +160,8 @@ document.onkeydown = function(e) {
             break;
     }
 };
+
+
 
 
 //Main Call================================================================================================================================================
