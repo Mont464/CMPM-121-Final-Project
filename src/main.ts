@@ -17,9 +17,16 @@ interface Player {
 //IMPORTANT: player's starting position (0, 0) is at the top left corner of the board
 const player: Player = {x: 0, y: 0, inventory: ["corn kernels", "bean sprout", "tomato seeds"], digitalCursorIndex: 0};
 
+//cell object (replaced the string 2d array in internalBoard)
+interface Cell { 
+    content: string;
+    sun: number;
+    water: number;
+}
+
 //create 2D "board" array
 const board: string[][] = [];
-const internalBoard: string[][] = [];
+const internalBoard: Cell[][] = [];
 
 //board dimensions
 const BOARD_WIDTH = 10;
@@ -67,13 +74,15 @@ function resetGameState(): void {
             else board[i][j] = "[___]";
         }
     }
+    internalBoard.length = 0;
     for (let i = 0; i < BOARD_HEIGHT; i++) {
-        internalBoard[i] = [];
+        const row: Cell[] = [];
         for (let j = 0; j < BOARD_WIDTH; j++) {
-            if(i === 0 && j === 0) internalBoard[i][j] = "P";
-            else internalBoard[i][j] = "";
+            row.push({ content: "", sun: 0, water: 0 }); 
         }
+        internalBoard.push(row);
     }
+    randomizeSunAndWater();
     displayBoard();
 }
 
@@ -87,7 +96,7 @@ function createTable(table: HTMLTableElement): void {
         //create the columns
         for (let j = 0; j < BOARD_WIDTH; j++) {
             const td = document.createElement("td");
-            if(internalBoard[i][j] && internalBoard[i][j] != "") td.innerHTML = "[_" + internalBoard[i][j] + "_]";
+            if(internalBoard[i][j].content && internalBoard[i][j].content != "") td.innerHTML = "[_" + internalBoard[i][j].content + "_]";
             else td.innerHTML = board[i][j];
             td.style.userSelect = "none"; // Disable text selection
             td.style.cursor = "default"; // Disable text cursor
@@ -113,11 +122,19 @@ function displayBoard(): void {
         app.style.height = "100vh"; // Full viewport height
 
         //add header with instructions
-        const header = document.createElement("h2");
-        header.innerHTML = topText;
-        header.style.userSelect = "none"; // Disable text selection
-        header.style.cursor = "default"; // Disable text cursor
-        app.prepend(header);
+        const headerInstructions = document.createElement("h2");
+        headerInstructions.innerHTML = topText;
+        headerInstructions.style.userSelect = "none"; // Disable text selection
+        headerInstructions.style.cursor = "default"; // Disable text cursor
+        app.prepend(headerInstructions);
+
+        //add header with info on cell's water and sun
+        const playerCell = internalBoard[player.y][player.x];
+        const headerCellInfo = document.createElement("h3");
+        headerCellInfo.innerHTML = `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
+        headerCellInfo.style.userSelect = "none"; // Disable text selection
+        headerCellInfo.style.cursor = "default"; // Disable text cursor
+        app.append(headerCellInfo);
 
         //add body text with player inventory
         const body = document.createElement("p");
@@ -153,37 +170,37 @@ function movePlayer(dir: string): void {
         case "up":
             if(player.y > 0) {
                 board[player.y][player.x] = "[___]";
-                internalBoard[player.y][player.x] = removePlayerMarker(internalBoard[player.y][player.x]);
+                internalBoard[player.y][player.x].content = removePlayerMarker(internalBoard[player.y][player.x].content);
                 player.y--;
                 board[player.y][player.x] = "[_P_]";
-                internalBoard[player.y][player.x] += "P";
+                internalBoard[player.y][player.x].content += "P";
             }
             break;
         case "down":
             if(player.y < BOARD_HEIGHT - 1) {
                 board[player.y][player.x] = "[___]";
-                internalBoard[player.y][player.x] = removePlayerMarker(internalBoard[player.y][player.x]);
+                internalBoard[player.y][player.x].content = removePlayerMarker(internalBoard[player.y][player.x].content);
                 player.y++;
                 board[player.y][player.x] = "[_P_]";
-                internalBoard[player.y][player.x] += "P";
+                internalBoard[player.y][player.x].content += "P";
             }
             break;
         case "left":
             if(player.x > 0) {
                 board[player.y][player.x] = "[___]";
-                internalBoard[player.y][player.x] = removePlayerMarker(internalBoard[player.y][player.x]);
+                internalBoard[player.y][player.x].content = removePlayerMarker(internalBoard[player.y][player.x].content);
                 player.x--;
                 board[player.y][player.x] = "[_P_]";
-                internalBoard[player.y][player.x] += "P";
+                internalBoard[player.y][player.x].content += "P";
             }
             break;
         case "right":
             if(player.x < BOARD_WIDTH - 1) {
                 board[player.y][player.x] = "[___]";
-                internalBoard[player.y][player.x] = removePlayerMarker(internalBoard[player.y][player.x]);
+                internalBoard[player.y][player.x].content = removePlayerMarker(internalBoard[player.y][player.x].content);
                 player.x++;
                 board[player.y][player.x] = "[_P_]";
-                internalBoard[player.y][player.x] += "P";
+                internalBoard[player.y][player.x].content += "P";
             }
             break;
     }
@@ -209,15 +226,15 @@ function useItem(): void {
     switch (item) {
         case "corn kernels":
             console.log("You planted corn!");
-            internalBoard[player.y][player.x] += "c";
+            internalBoard[player.y][player.x].content += "C1";
             break;
         case "bean sprout":
             console.log("You planted beans!");
-            internalBoard[player.y][player.x] += "b";
+            internalBoard[player.y][player.x].content += "B1";
             break;
         case "tomato seeds":
             console.log("You planted tomatoes!");
-            internalBoard[player.y][player.x] += "t";
+            internalBoard[player.y][player.x].content += "T1";
             break;
     }
     displayBoard();
@@ -226,9 +243,49 @@ function useItem(): void {
 //call on sleep button input
 function passTime(): void {
     currentDay++;
+    randomizeSunAndWater();
+    growPlants();
     topText = "Use WASD to move the player. Day " + currentDay + ".";
     displayBoard();
 }
+
+// call whenever player passes the time
+function growPlants(): void {
+    const growthStages: { [key: string]: string } = {
+        "C1": "C2",
+        "C2": "C3",
+        "B1": "B2",
+        "B2": "B3",
+        "T1": "T2",
+        "T2": "T3"
+    };
+
+    internalBoard.forEach((row) => {
+        row.forEach((cell) => {
+            const hasPlayer = cell.content.includes("P");
+            const cellContentNoPlayer = cell.content.replace("P", "");
+
+            const cellContent = growthStages[cellContentNoPlayer] || cellContentNoPlayer;
+            cell.content = hasPlayer ? cellContent + "P" : cellContent;
+        });
+    });
+}
+
+// call whenever player passes the time
+function randomizeSunAndWater(): void {
+    for (let i = 0; i < BOARD_HEIGHT; i++) {
+        for (let j = 0; j < BOARD_WIDTH; j++) {
+            const cell = internalBoard[i][j];
+
+            cell.sun = Math.floor(Math.random() * 3) + 1;
+
+            const waterIncrease = Math.floor(Math.random() * 3);
+            cell.water += waterIncrease;
+            cell.water = Math.min(cell.water, 10);
+        }
+    }
+}
+
 
 //input handling
 document.onkeydown = function(e) {
@@ -252,8 +309,10 @@ document.onkeydown = function(e) {
             handleDigitalCursor(true);
             break;
         case "e":
-            useItem();
-            break;
+            if(internalBoard[player.y][player.x].content == "" || internalBoard[player.y][player.x].content == "P") {
+                useItem();
+                break;
+            }
     }
 };
 
