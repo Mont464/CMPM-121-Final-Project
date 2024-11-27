@@ -226,15 +226,15 @@ function useItem(): void {
     switch (item) {
         case "corn kernels":
             console.log("You planted corn!");
-            internalBoard[player.y][player.x].content += "c";
+            internalBoard[player.y][player.x].content += "C1";
             break;
         case "bean sprout":
             console.log("You planted beans!");
-            internalBoard[player.y][player.x].content += "b";
+            internalBoard[player.y][player.x].content += "B1";
             break;
         case "tomato seeds":
             console.log("You planted tomatoes!");
-            internalBoard[player.y][player.x].content += "t";
+            internalBoard[player.y][player.x].content += "T1";
             break;
     }
     displayBoard();
@@ -244,10 +244,34 @@ function useItem(): void {
 function passTime(): void {
     currentDay++;
     randomizeSunAndWater();
+    growPlants();
     topText = "Use WASD to move the player. Day " + currentDay + ".";
     displayBoard();
 }
 
+// call whenever player passes the time
+function growPlants(): void {
+    const growthStages: { [key: string]: string } = {
+        "C1": "C2",
+        "C2": "C3",
+        "B1": "B2",
+        "B2": "B3",
+        "T1": "T2",
+        "T2": "T3"
+    };
+
+    internalBoard.forEach((row) => {
+        row.forEach((cell) => {
+            const hasPlayer = cell.content.includes("P");
+            const cellContentNoPlayer = cell.content.replace("P", "");
+
+            const cellContent = growthStages[cellContentNoPlayer] || cellContentNoPlayer;
+            cell.content = hasPlayer ? cellContent + "P" : cellContent;
+        });
+    });
+}
+
+// call whenever player passes the time
 function randomizeSunAndWater(): void {
     for (let i = 0; i < BOARD_HEIGHT; i++) {
         for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -285,8 +309,10 @@ document.onkeydown = function(e) {
             handleDigitalCursor(true);
             break;
         case "e":
-            useItem();
-            break;
+            if(internalBoard[player.y][player.x].content == "" || internalBoard[player.y][player.x].content == "P") {
+                useItem();
+                break;
+            }
     }
 };
 
