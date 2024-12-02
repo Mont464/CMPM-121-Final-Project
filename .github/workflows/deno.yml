@@ -1,39 +1,28 @@
-name: Deno
-
+name: Continuous Integration and Deployment
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
-
+  workflow_dispatch:
 permissions:
   contents: read
-
+  pages: write
+  id-token: write
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Setup repo
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-
-      # Uncomment this step to verify the use of 'deno fmt' on each commit.
-      # - name: Verify formatting
-      #   run: deno fmt --check
-
-      - name: Run linter
-        run: deno lint
-
-      - name: Run tests
-        run: deno test -A
-
+      - name: Check types
+        run: deno check src/
+      - name: Check format
+        run: deno fmt --check src/
+      - name: Check lint
+        run: deno lint .
   deploy:
-    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
