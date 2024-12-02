@@ -104,9 +104,9 @@ function createTable(table: HTMLTableElement): void {
     //create the columns
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const td = document.createElement("td");
-      if (internalBoard[i][j].content && internalBoard[i][j].content != "")
+      if (internalBoard[i][j].content && internalBoard[i][j].content != "") {
         td.innerHTML = "[_" + internalBoard[i][j].content + "_]";
-      else td.innerHTML = board[i][j];
+      } else td.innerHTML = board[i][j];
       td.style.userSelect = "none"; // Disable text selection
       td.style.cursor = "default"; // Disable text cursor
       tr.appendChild(td);
@@ -140,7 +140,8 @@ function displayBoard(): void {
     //add header with info on cell's water and sun
     const playerCell = internalBoard[player.y][player.x];
     const headerCellInfo = document.createElement("h3");
-    headerCellInfo.innerHTML = `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
+    headerCellInfo.innerHTML =
+      `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
     headerCellInfo.style.userSelect = "none"; // Disable text selection
     headerCellInfo.style.cursor = "default"; // Disable text cursor
     app.append(headerCellInfo);
@@ -180,7 +181,7 @@ function movePlayer(dir: string): void {
       if (player.y > 0) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.y--;
         board[player.y][player.x] = "[_P_]";
@@ -191,7 +192,7 @@ function movePlayer(dir: string): void {
       if (player.y < BOARD_HEIGHT - 1) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.y++;
         board[player.y][player.x] = "[_P_]";
@@ -202,7 +203,7 @@ function movePlayer(dir: string): void {
       if (player.x > 0) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.x--;
         board[player.y][player.x] = "[_P_]";
@@ -213,7 +214,7 @@ function movePlayer(dir: string): void {
       if (player.x < BOARD_WIDTH - 1) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.x++;
         board[player.y][player.x] = "[_P_]";
@@ -228,8 +229,9 @@ function movePlayer(dir: string): void {
 function handleDigitalCursor(dir: boolean): void {
   //true is right, false is left
   if (dir) {
-    if (player.digitalCursorIndex < player.inventory.length - 1)
+    if (player.digitalCursorIndex < player.inventory.length - 1) {
       player.digitalCursorIndex++;
+    }
   } else {
     if (player.digitalCursorIndex > 0) player.digitalCursorIndex--;
   }
@@ -290,8 +292,8 @@ function growPlants(): void {
         const hasPlayer = cell.content.includes("P");
         const cellContentNoPlayer = cell.content.replace("P", "");
 
-        const cellContent =
-          growthStages[cellContentNoPlayer] || cellContentNoPlayer;
+        const cellContent = growthStages[cellContentNoPlayer] ||
+          cellContentNoPlayer;
         cell.content = hasPlayer ? cellContent + "P" : cellContent;
         cell.water--; // reduce cell water by two for growing plant
       }
