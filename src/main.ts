@@ -14,14 +14,16 @@ topTextFormat += "\n\n Day  " + currentDay + ".";
 interface Player {
   x: number;
   y: number;
-  inventory: string[];
+  seeds_inventory: string[];
+  plants_inventory: string[];
   digitalCursorIndex: number;
 }
 //IMPORTANT: player's starting position (0, 0) is at the top left corner of the board
 const player: Player = {
   x: 0,
   y: 0,
-  inventory: ["corn kernels", "bean sprout", "tomato seeds"],
+  seeds_inventory: ["corn kernels", "bean sprout", "tomato seeds"],
+  plants_inventory: [],
   digitalCursorIndex: 0,
 };
 
@@ -62,6 +64,11 @@ function Start(): void {
   passTimeButton.style.userSelect = "none"; // Disable text selection
   passTimeButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(passTimeButton);
+
+  if (player.plants_inventory.length > 5){
+    console.log("You win!");
+    resetGameState();
+  }
 }
 
 //FUNCTIONS==================================================================================================================================================
@@ -73,7 +80,7 @@ function resetGameState(): void {
   topText = topTextFormat;
   player.x = 0;
   player.y = 0;
-  player.inventory = ["corn kernels", "bean sprout", "tomato seeds"];
+  player.seeds_inventory = ["corn kernels", "bean sprout", "tomato seeds"];
   //clear the board
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     board[i] = [];
@@ -149,10 +156,10 @@ function displayBoard(): void {
     //add body text with player inventory
     const body = document.createElement("p");
     let inventoryString = "Inventory: ";
-    for (let i = 0; i < player.inventory.length; i++) {
+    for (let i = 0; i < player.seeds_inventory.length; i++) {
       if (i === player.digitalCursorIndex) inventoryString += ">";
-      inventoryString += player.inventory[i];
-      if (i !== player.inventory.length - 1) inventoryString += ", ";
+      inventoryString += player.seeds_inventory[i];
+      if (i !== player.seeds_inventory.length - 1) inventoryString += ", ";
     }
     body.innerHTML = inventoryString;
     body.style.userSelect = "none"; // Disable text selection
@@ -229,7 +236,7 @@ function movePlayer(dir: string): void {
 function handleDigitalCursor(dir: boolean): void {
   //true is right, false is left
   if (dir) {
-    if (player.digitalCursorIndex < player.inventory.length - 1) {
+    if (player.digitalCursorIndex < player.seeds_inventory.length - 1) {
       player.digitalCursorIndex++;
     }
   } else {
@@ -240,8 +247,8 @@ function handleDigitalCursor(dir: boolean): void {
 
 //call on space bar input
 function useItem(): void {
-  console.log("Used " + player.inventory[player.digitalCursorIndex]);
-  const item = player.inventory[player.digitalCursorIndex];
+  console.log("Used " + player.seeds_inventory[player.digitalCursorIndex]);
+  const item = player.seeds_inventory[player.digitalCursorIndex];
   //Uncomment to deacrease item, infinite items for now.
   //player.inventory.splice(player.digitalCursorIndex, 1);
   //if(player.digitalCursorIndex > 0) player.digitalCursorIndex--;
@@ -351,13 +358,13 @@ function harvest() {
   if (cell.content.indexOf("3") >= 0) {
     switch (cell.content[0]) {
       case "C":
-        player.inventory.push("corn");
+        player.plants_inventory.push("corn");
         break;
       case "B":
-        player.inventory.push("beans");
+        player.plants_inventory.push("beans");
         break;
       case "T":
-        player.inventory.push("tomato");
+        player.plants_inventory.push("tomato");
         break;
     }
   }
