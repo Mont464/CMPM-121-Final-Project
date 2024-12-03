@@ -65,7 +65,7 @@ function Start(): void {
   passTimeButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(passTimeButton);
 
-  if (player.plants_inventory.length > 5){
+  if (player.plants_inventory.length > 5) {
     console.log("You win!");
     resetGameState();
   }
