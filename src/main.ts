@@ -358,12 +358,15 @@ function harvest() {
   if (cell.content.indexOf("3") >= 0) {
     switch (cell.content[0]) {
       case "C":
+        cell.content.replace("C3", "");
         player.plants_inventory.push("corn");
         break;
       case "B":
+        cell.content.replace("B3", "");
         player.plants_inventory.push("beans");
         break;
       case "T":
+        cell.content.replace("T3", "");
         player.plants_inventory.push("tomato");
         break;
     }
