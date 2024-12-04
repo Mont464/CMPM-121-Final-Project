@@ -142,7 +142,8 @@ function displayBoard(): void {
     //add header with info on cell's water and sun
     const playerCell = internalBoard[player.y][player.x];
     const headerCellInfo = document.createElement("h3");
-    headerCellInfo.innerHTML = `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
+    headerCellInfo.innerHTML =
+    `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
     headerCellInfo.style.userSelect = "none"; // Disable text selection
     headerCellInfo.style.cursor = "default"; // Disable text cursor
     app.append(headerCellInfo);
@@ -189,7 +190,7 @@ function movePlayer(dir: string): void {
       if (player.y > 0) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.y--;
         board[player.y][player.x] = "[_P_]";
@@ -200,7 +201,7 @@ function movePlayer(dir: string): void {
       if (player.y < BOARD_HEIGHT - 1) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.y++;
         board[player.y][player.x] = "[_P_]";
@@ -211,7 +212,7 @@ function movePlayer(dir: string): void {
       if (player.x > 0) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.x--;
         board[player.y][player.x] = "[_P_]";
@@ -222,7 +223,7 @@ function movePlayer(dir: string): void {
       if (player.x < BOARD_WIDTH - 1) {
         board[player.y][player.x] = "[___]";
         internalBoard[player.y][player.x].content = removePlayerMarker(
-          internalBoard[player.y][player.x].content
+          internalBoard[player.y][player.x].content,
         );
         player.x++;
         board[player.y][player.x] = "[_P_]";
@@ -300,8 +301,8 @@ function growPlants(): void {
         const hasPlayer = cell.content.includes("P");
         const cellContentNoPlayer = cell.content.replace("P", "");
 
-        const cellContent =
-          growthStages[cellContentNoPlayer] || cellContentNoPlayer;
+        const cellContent = growthStages[cellContentNoPlayer] ||
+         cellContentNoPlayer;
         cell.content = hasPlayer ? cellContent + "P" : cellContent;
         cell.water--; // reduce cell water by two for growing plant
       }
