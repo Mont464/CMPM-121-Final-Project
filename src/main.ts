@@ -76,6 +76,7 @@ function resetGameState(): void {
   player.x = 0;
   player.y = 0;
   player.seeds_inventory = ["corn kernels", "bean sprout", "tomato seeds"];
+  player.plants_inventory = [];
   //clear the board
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     board[i] = [];
