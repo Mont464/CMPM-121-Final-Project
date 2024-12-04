@@ -142,8 +142,9 @@ function displayBoard(): void {
     //add header with info on cell's water and sun
     const playerCell = internalBoard[player.y][player.x];
     const headerCellInfo = document.createElement("h3");
-    headerCellInfo.innerHTML =
-    `Sun: ${playerCell.sun}     Water: ${playerCell.water}`;
+    const s = playerCell.sun;
+    const w = playerCell.water;
+    headerCellInfo.innerHTML = `Sun: ${s}     Water: ${w}`;
     headerCellInfo.style.userSelect = "none"; // Disable text selection
     headerCellInfo.style.cursor = "default"; // Disable text cursor
     app.append(headerCellInfo);
