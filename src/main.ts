@@ -302,7 +302,7 @@ function growPlants(): void {
         const hasPlayer = cell.content.includes("P");
         const cellContentNoPlayer = cell.content.replace("P", "");
 
-        const cellContent = growthStages[cellContentNoPlayer] ||
+        const cellContent = growthStages[cellContentNoPlayer] || 
         cellContentNoPlayer;
         cell.content = hasPlayer ? cellContent + "P" : cellContent;
         cell.water--; // reduce cell water by two for growing plant
