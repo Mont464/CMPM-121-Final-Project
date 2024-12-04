@@ -64,11 +64,6 @@ function Start(): void {
   passTimeButton.style.userSelect = "none"; // Disable text selection
   passTimeButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(passTimeButton);
-
-  if (player.plants_inventory.length > 5) {
-    console.log("You win!");
-    resetGameState();
-  }
 }
 
 //FUNCTIONS==================================================================================================================================================
@@ -155,12 +150,19 @@ function displayBoard(): void {
 
     //add body text with player inventory
     const body = document.createElement("p");
-    let inventoryString = "Inventory: ";
+    let inventoryString = " Seed Inventory: ";
     for (let i = 0; i < player.seeds_inventory.length; i++) {
       if (i === player.digitalCursorIndex) inventoryString += ">";
       inventoryString += player.seeds_inventory[i];
       if (i !== player.seeds_inventory.length - 1) inventoryString += ", ";
     }
+    inventoryString += "\n Plant Inventory: ";
+    for (let i = 0; i < player.plants_inventory.length; i++) {
+      if (i === player.digitalCursorIndex) inventoryString += ">";
+      inventoryString += player.plants_inventory[i];
+      if (i !== player.plants_inventory.length - 1) inventoryString += ", ";
+    }
+
     body.innerHTML = inventoryString;
     body.style.userSelect = "none"; // Disable text selection
     body.style.cursor = "default"; // Disable text cursor
@@ -358,7 +360,7 @@ function harvest() {
   if (cell.content.indexOf("3") >= 0) {
     switch (cell.content[0]) {
       case "C":
-        cell.content.replace("C3", "");
+        cell.content = ""
         player.plants_inventory.push("corn");
         break;
       case "B":
@@ -370,6 +372,11 @@ function harvest() {
         player.plants_inventory.push("tomato");
         break;
     }
+    if (player.plants_inventory.length > 5) {
+      alert("You win!");
+      resetGameState();
+    }
+    displayBoard();
   }
 }
 
@@ -410,3 +417,4 @@ document.onkeydown = function (e) {
 
 //Main Call================================================================================================================================================
 Start(); //main call
+
