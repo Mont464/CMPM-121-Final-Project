@@ -452,6 +452,9 @@ function loadGame(){
 }
 
 //load the most recently saved game state
-loadGame();
+document.addEventListener("DOMContentLoaded", () => {
+  loadGame();
+});
+
 //Main Call================================================================================================================================================
 Start(); //main call
