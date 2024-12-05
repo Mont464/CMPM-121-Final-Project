@@ -66,7 +66,6 @@ function Start(): void {
   passTimeButton.style.userSelect = "none"; // Disable text selection
   passTimeButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(passTimeButton);
-}
 
   //create button that saves the game and calls saveGame
   const saveGameButton = document.createElement("button");
