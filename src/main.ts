@@ -38,7 +38,9 @@ interface Cell {
 
 //create 2D "board" array
 const board: string[][] = [];
-const internalBoard: Cell[][] = [];
+let internalBoard: Cell[][] = [];
+
+let savesArray: string[];
 
 //board dimensions
 const BOARD_WIDTH = 10;
@@ -66,6 +68,14 @@ function Start(): void {
   document.body.appendChild(passTimeButton);
 }
 
+  //create button that saves the game and calls saveGame
+  const saveGameButton = document.createElement("button");
+  saveGameButton.innerHTML = "Save";
+  saveGameButton.onclick = saveGame;
+  saveGameButton.style.userSelect = "none"; // Disable text selection
+  saveGameButton.style.cursor = "default"; // Disable text cursor
+  document.body.appendChild(saveGameButton);
+}
 //FUNCTIONS==================================================================================================================================================
 
 //call on initialize, and when game state should be reset
@@ -77,7 +87,7 @@ function resetGameState(): void {
   player.y = 0;
   player.seeds_inventory = ["corn kernels", "bean sprout", "tomato seeds"];
   player.plants_inventory = [];
-  //clear the board
+  //clear the eternal board
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     board[i] = [];
     for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -85,6 +95,7 @@ function resetGameState(): void {
       else board[i][j] = "[___]";
     }
   }
+  //create cells for the internal board
   internalBoard.length = 0;
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     const row: Cell[] = [];
@@ -416,5 +427,31 @@ document.onkeydown = function (e) {
   }
 };
 
+function saveGame() {
+  const gameState = {
+    playerPlants: player.plants_inventory,
+    currDay: currentDay,
+    boardState: internalBoard,
+  };
+  let saveData = JSON.stringify(gameState);
+  savesArray.push(saveData);
+  localStorage.setItem("gameSaves", JSON.stringify(savesArray));
+}
+
+function loadGame(){
+  const gameSaves = localStorage.getItem("gameSaves");
+  if (gameSaves){
+    const savesToLoad = JSON.parse(gameSaves);
+    if (savesToLoad) {
+      const gameState = JSON.parse(savesToLoad[0]);
+      player.plants_inventory = gameState.playerPlants;
+      currentDay = gameState.currDay;
+      internalBoard = gameState.boardState;
+    }
+  }
+}
+
+//load the most recently saved game state
+loadGame();
 //Main Call================================================================================================================================================
 Start(); //main call
