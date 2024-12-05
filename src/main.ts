@@ -40,7 +40,7 @@ interface Cell {
 const board: string[][] = [];
 let internalBoard: Cell[][] = [];
 
-let savesArray: string[];
+let savesArray: string[] = [];
 
 //board dimensions
 const BOARD_WIDTH = 10;
@@ -432,7 +432,7 @@ function saveGame() {
     currDay: currentDay,
     boardState: internalBoard,
   };
-  let saveData = JSON.stringify(gameState);
+  const saveData = JSON.stringify(gameState);
   savesArray.push(saveData);
   localStorage.setItem("gameSaves", JSON.stringify(savesArray));
 }
@@ -446,6 +446,7 @@ function loadGame(){
       player.plants_inventory = gameState.playerPlants;
       currentDay = gameState.currDay;
       internalBoard = gameState.boardState;
+      savesArray = savesToLoad;
     }
   }
 }
