@@ -76,7 +76,7 @@ function Start(): void {
   saveGameButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(saveGameButton);
 
-  //create button that saves the game and calls saveGame
+  //create button that undoes the game state and calls undoGameState
   const undoButton = document.createElement("button");
   saveGameButton.innerHTML = "Undo";
   saveGameButton.onclick = undoGameState;
@@ -84,7 +84,7 @@ function Start(): void {
   saveGameButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(undoButton);
 
-  //create button that saves the game and calls saveGame
+  //create button that redoes the game state and calls redoGameState
   const redoButton = document.createElement("button");
   saveGameButton.innerHTML = "Redo";
   saveGameButton.onclick = redoGameState;
@@ -454,6 +454,7 @@ function undoGameState(){
     if (undoSave){
       redoSaves.push(undoSave);
       loadGame();
+      console.log("Undo!");
     }
   }
 }
@@ -464,6 +465,7 @@ function redoGameState(){
     if (redoSave){
       allSaves.push(redoSave);
       loadGame();
+      console.log("Redo!");
     }
   }
 }
@@ -477,6 +479,7 @@ function saveGame() {
   const saveData = JSON.stringify(gameState);
   allSaves.push(saveData);
   localStorage.setItem("gameSaves", JSON.stringify(allSaves));
+  console.log("Game saved!");
 }
 
 function loadGame(){
@@ -489,6 +492,7 @@ function loadGame(){
       currentDay = gameState.currDay;
       internalBoard = gameState.boardState;
       allSaves = savesToLoad;
+      console.log("Game loaded");
     }
   }
 }
