@@ -1,0 +1,16 @@
+Rats:
+  board_size: [10, 10]
+  seeds_inventory:
+    - tomato seeds
+    - bean sprouts
+    - corn kernel
+  win_condition:
+    - [tomoto, min, 15]
+    - [beans, min, 15]
+    - [corn, min, 15]
+  special_events:
+    - [3, infestation ]
+  human_instruciton: 
+    "harvest 15 corn, tomotoes, and beans"
+  
+
