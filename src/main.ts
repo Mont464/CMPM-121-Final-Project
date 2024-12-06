@@ -40,7 +40,8 @@ interface Cell {
 const board: string[][] = [];
 let internalBoard: Cell[][] = [];
 
-let savesArray: string[] = [];
+let allSaves: string[] = [];
+let redoSaves: string[] = [];
 
 //board dimensions
 const BOARD_WIDTH = 10;
@@ -74,6 +75,22 @@ function Start(): void {
   saveGameButton.style.userSelect = "none"; // Disable text selection
   saveGameButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(saveGameButton);
+
+  //create button that saves the game and calls saveGame
+  const undoButton = document.createElement("button");
+  saveGameButton.innerHTML = "Undo";
+  saveGameButton.onclick = undoGameState;
+  saveGameButton.style.userSelect = "none"; // Disable text selection
+  saveGameButton.style.cursor = "default"; // Disable text cursor
+  document.body.appendChild(undoButton);
+
+  //create button that saves the game and calls saveGame
+  const redoButton = document.createElement("button");
+  saveGameButton.innerHTML = "Redo";
+  saveGameButton.onclick = redoGameState;
+  saveGameButton.style.userSelect = "none"; // Disable text selection
+  saveGameButton.style.cursor = "default"; // Disable text cursor
+  document.body.appendChild(redoButton);
 }
 //FUNCTIONS==================================================================================================================================================
 
@@ -81,6 +98,8 @@ function Start(): void {
 function resetGameState(): void {
   console.log("Game state reset.");
   currentDay = 1;
+  allSaves = [];
+  redoSaves = [];
   topText = topTextFormat;
   player.x = 0;
   player.y = 0;
@@ -281,6 +300,7 @@ function useItem(): void {
       break;
   }
   displayBoard();
+  saveGame();
 }
 
 //call on sleep button input
@@ -290,6 +310,7 @@ function passTime(): void {
   growPlants();
   topText = "Use WASD to move the player. Day " + currentDay + ".";
   displayBoard();
+  saveGame();
 }
 
 // call whenever player passes the time
@@ -388,6 +409,7 @@ function harvest() {
       resetGameState();
     }
     displayBoard();
+    saveGame();
   }
 }
 
@@ -426,6 +448,26 @@ document.onkeydown = function (e) {
   }
 };
 
+function undoGameState(){
+  if (allSaves.length != 0){
+    const undoSave = allSaves.pop();
+    if (undoSave){
+      redoSaves.push(undoSave);
+      loadGame();
+    }
+  }
+}
+
+function redoGameState(){
+  if (redoSaves.length != 0){
+    const redoSave = redoSaves.pop();
+    if (redoSave){
+      allSaves.push(redoSave);
+      loadGame();
+    }
+  }
+}
+
 function saveGame() {
   const gameState = {
     playerPlants: player.plants_inventory,
@@ -433,8 +475,8 @@ function saveGame() {
     boardState: internalBoard,
   };
   const saveData = JSON.stringify(gameState);
-  savesArray.push(saveData);
-  localStorage.setItem("gameSaves", JSON.stringify(savesArray));
+  allSaves.push(saveData);
+  localStorage.setItem("gameSaves", JSON.stringify(allSaves));
 }
 
 function loadGame(){
@@ -446,7 +488,7 @@ function loadGame(){
       player.plants_inventory = gameState.playerPlants;
       currentDay = gameState.currDay;
       internalBoard = gameState.boardState;
-      savesArray = savesToLoad;
+      allSaves = savesToLoad;
     }
   }
 }
