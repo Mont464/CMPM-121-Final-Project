@@ -62,8 +62,8 @@ function Start(): void {
 
   //load the most recently saved game state
   document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM content loaded");
     if (allSaves.length != 0){
+      console.log("allSaves: " + allSaves.length);
       loadGame();
     }
   });
@@ -516,6 +516,12 @@ function loadGame(){
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
       console.log("Game loaded");
     }
+    else{
+      alert("Parsing unsuccessful");
+    }
+  }
+  else{
+    alert("No game saves to load");
   }
 }
 
