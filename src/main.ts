@@ -36,6 +36,14 @@ interface Cell {
   y: number;
 }
 
+interface gameState{
+  playerPlants: string[],
+  currDay: number,
+  width: number,
+  height: number,
+  grid: number[]
+}
+
 //board dimensions
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
@@ -44,13 +52,21 @@ const BOARD_HEIGHT = 10;
 const board: string[][] = [];
 
 let internalBoard = new InternalBoard(BOARD_WIDTH, BOARD_HEIGHT);
-let allSaves: string[] = [];
-let redoSaves: string[] = [];
+let allSaves: gameState[] = [];
+let redoSaves: gameState[] = [];
 
 //MAIN========================================================================================================================================================
 function Start(): void {
   //init game state
   resetGameState();
+
+  //load the most recently saved game state
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM content loaded");
+    if (allSaves.length != 0){
+      loadGame();
+    }
+  });
 
   //create reset button that calls displayBoard
   const resetButton = document.createElement("button");
@@ -71,10 +87,13 @@ function Start(): void {
   //create button that saves the game and calls saveGame
   const saveGameButton = document.createElement("button");
   saveGameButton.innerHTML = "Save";
-  saveGameButton.onclick = saveGame;
   saveGameButton.style.userSelect = "none"; // Disable text selection
   saveGameButton.style.cursor = "default"; // Disable text cursor
+  saveGameButton.addEventListener("click", () => {
+    saveGame(internalBoard);
+  });
   document.body.appendChild(saveGameButton);
+
 
   //create button that undoes the game state and calls undoGameState
   const undoButton = document.createElement("button");
@@ -295,7 +314,7 @@ function useItem(): void {
       break;
   }
   displayBoard();
-  saveGame();
+  saveGame(internalBoard);
 }
 
 //call on sleep button input
@@ -305,7 +324,7 @@ function passTime(): void {
   growPlants();
   topText = "Use WASD to move the player. Day " + currentDay + ".";
   displayBoard();
-  saveGame();
+  saveGame(internalBoard);
 }
 
 // call whenever player passes the time
@@ -409,7 +428,7 @@ function harvest() {
     }
     internalBoard.setCell(player.x,player.y,cell);
     displayBoard();
-    saveGame();
+    saveGame(internalBoard);
   }
 }
 
@@ -470,56 +489,35 @@ function redoGameState(){
   }
 }
 
-function saveGame() {
-  const gameState = {
+function saveGame(board: InternalBoard) {
+  const gameState: gameState = {
     playerPlants: player.plants_inventory,
     currDay: currentDay,
+    width: BOARD_WIDTH,
+    height: BOARD_HEIGHT,
+    grid: Array.from(board.getCells()), // Convert Uint8Array to a regular array
   };
-  saveInternalBoard(internalBoard);
-  const saveData = JSON.stringify(gameState);
-  allSaves.push(saveData);
+  allSaves.push(gameState);
   localStorage.setItem("gameSaves", JSON.stringify(allSaves));
   console.log("Game saved!");
 }
 
 function loadGame(){
-  const gameSaves = localStorage.getItem("gameSaves");
+  const gameSaves = localStorage.getItem("gameSaves"); //gameSaves = unparsed array of unparsed stringified game states
   if (gameSaves){
-    const savesToLoad = JSON.parse(gameSaves);
+    const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
     if (savesToLoad) {
-      const gameState = JSON.parse(savesToLoad[0]);
+      const gameState = savesToLoad[0]; // gameState = first item of parsed array of game states
+      console.log("this is gameState to load: "+ gameState);
       player.plants_inventory = gameState.playerPlants;
       currentDay = gameState.currDay;
-      loadInternalBoard();
       allSaves = savesToLoad;
+      const internalBoard = new InternalBoard(gameState.width, gameState.height);
+      internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
       console.log("Game loaded");
     }
   }
 }
-
-function saveInternalBoard(board: InternalBoard): void {
-  const boardData = {
-      width: BOARD_WIDTH,
-      height: BOARD_HEIGHT,
-      grid: Array.from(board.getCells()) // Convert Uint8Array to a regular array
-  };
-  localStorage.setItem('internalBoard', JSON.stringify(boardData));
-}
-
-function loadInternalBoard(): InternalBoard | null {
-  const boardData = localStorage.getItem('internalBoard');
-  if (!boardData) return null;
-
-  const parsed = JSON.parse(boardData);
-  const board = new InternalBoard(BOARD_WIDTH, BOARD_HEIGHT);
-  board.setCells(new Uint8Array(parsed.grid)); // Convert back to Uint8Array
-  return board;
-}
-
-//load the most recently saved game state
-document.addEventListener("DOMContentLoaded", () => {
-  loadGame();
-});
 
 //Main Call================================================================================================================================================
 Start(); //main call
