@@ -466,7 +466,7 @@ document.onkeydown = function (e) {
 
 function undoGameState(){
   if (allSaves.length != 0){
-    const undoSave = allSaves.pop();
+    const undoSave = allSaves.shift();
     if (undoSave){
       redoSaves.push(undoSave);
       loadGame();
@@ -477,7 +477,7 @@ function undoGameState(){
 
 function redoGameState(){
   if (redoSaves.length != 0){
-    const redoSave = redoSaves.pop();
+    const redoSave = redoSaves.shift();
     if (redoSave){
       allSaves.push(redoSave);
       loadGame();
@@ -511,6 +511,7 @@ function loadGame(){
       allSaves = savesToLoad;
       internalBoard = new InternalBoard(gameState.width, gameState.height);
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
+      displayBoard();
       console.log("Game loaded");
     }
     else{
