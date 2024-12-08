@@ -62,10 +62,7 @@ function Start(): void {
 
   //load the most recently saved game state
   document.addEventListener("DOMContentLoaded", () => {
-    if (allSaves.length != 0){
-      console.log("allSaves: " + allSaves.length);
       loadGame();
-    }
   });
 
   //create reset button that calls displayBoard
@@ -512,7 +509,7 @@ function loadGame(){
       player.plants_inventory = gameState.playerPlants;
       currentDay = gameState.currDay;
       allSaves = savesToLoad;
-      const internalBoard = new InternalBoard(gameState.width, gameState.height);
+      internalBoard = new InternalBoard(gameState.width, gameState.height);
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
       console.log("Game loaded");
     }
