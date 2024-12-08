@@ -78,18 +78,18 @@ function Start(): void {
 
   //create button that undoes the game state and calls undoGameState
   const undoButton = document.createElement("button");
-  saveGameButton.innerHTML = "Undo";
-  saveGameButton.onclick = undoGameState;
-  saveGameButton.style.userSelect = "none"; // Disable text selection
-  saveGameButton.style.cursor = "default"; // Disable text cursor
+  undoButton.innerHTML = "Undo";
+  undoButton.onclick = undoGameState;
+  undoButton.style.userSelect = "none"; // Disable text selection
+  undoButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(undoButton);
 
   //create button that redoes the game state and calls redoGameState
   const redoButton = document.createElement("button");
-  saveGameButton.innerHTML = "Redo";
-  saveGameButton.onclick = redoGameState;
-  saveGameButton.style.userSelect = "none"; // Disable text selection
-  saveGameButton.style.cursor = "default"; // Disable text cursor
+  redoButton.innerHTML = "Redo";
+  redoButton.onclick = redoGameState;
+  redoButton.style.userSelect = "none"; // Disable text selection
+  redoButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(redoButton);
 }
 //FUNCTIONS==================================================================================================================================================
