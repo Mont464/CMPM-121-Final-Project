@@ -508,6 +508,11 @@ function loadGame(){
       console.log("this is gameState to load: "+ gameState);
       player.plants_inventory = gameState.playerPlants;
       currentDay = gameState.currDay;
+      topTextFormat =
+        "Use WASD to move the player. \n Use Arrow Keys to choose item. \n Use 'E' to use item. \n Use 'H' to harvest ";
+      topTextFormat +=
+        "\nGrowth Rules: Plant needs to have at least 2 sun and 2 water, one neighbor of the same plant";
+      topTextFormat += "\n\n Day  " + currentDay + ".";
       allSaves = savesToLoad;
       internalBoard = new InternalBoard(gameState.width, gameState.height);
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
