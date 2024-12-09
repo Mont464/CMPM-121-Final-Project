@@ -158,7 +158,10 @@ function createTable(table: HTMLTableElement): void {
       const cellContent = internalBoard.getCell(j,i).content;
       if (cellContent && cellContent != "") {
         td.innerHTML = "[_" + cellContent + "_]";
-      } else td.innerHTML = board[i][j];
+      } else {
+        if((i != player.y || j != player.x) && board[i][j] == "[_P_]") td.innerHTML = "[__]";
+        else td.innerHTML = board[i][j];
+      }
       td.style.userSelect = "none"; // Disable text selection
       td.style.cursor = "default"; // Disable text cursor
       tr.appendChild(td);
@@ -470,14 +473,16 @@ document.onkeydown = function (e) {
 };
 
 function undoGameState(){
-  if (allSaves.length != 0){
-    const undoSave = allSaves.shift();
+  if (allSaves.length > 1){
+    const undoSave = allSaves.pop();
     if (undoSave){
       redoSaves.push(undoSave);
+      localStorage.setItem("gameSaves", JSON.stringify(allSaves));
       loadGame();
       console.log("Undo!");
     }
   }
+  else resetGameState();
 }
 
 function redoGameState(){
@@ -518,6 +523,7 @@ function loadGame(){
       player.x = gameState.playerX;
       player.y = gameState.playerY;
       currentDay = gameState.currDay;
+
       topTextFormat =
         "Use WASD to move the player. \n Use Arrow Keys to choose item. \n Use 'E' to use item. \n Use 'H' to harvest ";
       topTextFormat +=
