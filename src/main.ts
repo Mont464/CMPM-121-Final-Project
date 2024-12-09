@@ -66,6 +66,7 @@ let redoSaves2: gameState[] = [];
 //MAIN========================================================================================================================================================
 function Start(): void {
   //init game state
+  selectedSave = selectSaveFile();
   resetGameState();
 
   //load the most recently saved game state
@@ -141,6 +142,21 @@ function Start(): void {
   }
 }
 //FUNCTIONS==================================================================================================================================================
+
+function selectSaveFile(): number {
+  const saveFile = prompt("Enter save file number (0, 1, 2): ");
+  if (saveFile === null) {
+    alert("No save file selected. Defaulting to save file 0.");
+    return 0;
+  }
+  const saveFileNum = parseInt(saveFile);
+  if (saveFileNum >= 0 && saveFileNum <= 2) {
+    return saveFileNum;
+  } else {
+    alert("Invalid save file number. Defaulting to save file 0.");
+    return 0;
+  }
+}
 
 //call on initialize, and when game state should be reset
 function resetGameState(): void {
