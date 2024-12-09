@@ -4,6 +4,7 @@ import {InternalBoard} from "./internalBoard.ts"
 
 //instructions and game state string
 let currentDay = 1;
+let selectedSave = 0;//0, 1, 2
 let topText = "";
 let topTextFormat =
   "Use WASD to move the player. \n Use Arrow Keys to choose item. \n Use 'E' to use item. \n Use 'H' to harvest ";
@@ -55,8 +56,12 @@ const BOARD_HEIGHT = 10;
 const board: string[][] = [];
 
 let internalBoard = new InternalBoard(BOARD_WIDTH, BOARD_HEIGHT);
-let allSaves: gameState[] = [];
-let redoSaves: gameState[] = [];
+let allSaves0: gameState[] = [];
+let redoSaves0: gameState[] = [];
+let allSaves1: gameState[] = [];
+let redoSaves1: gameState[] = [];
+let allSaves2: gameState[] = [];
+let redoSaves2: gameState[] = [];
 
 //MAIN========================================================================================================================================================
 function Start(): void {
@@ -98,7 +103,16 @@ function Start(): void {
   //create button that undoes the game state and calls undoGameState
   const undoButton = document.createElement("button");
   undoButton.innerHTML = "Undo";
-  undoButton.onclick = undoGameState;
+  switch(selectedSave){
+    case 0:
+      undoButton.onclick = () => undoGameState(allSaves0, redoSaves0);
+      break;
+    case 1:
+      undoButton.onclick = () => undoGameState(allSaves1, redoSaves1);
+      break;
+    case 2:
+      undoButton.onclick = () => undoGameState(allSaves2, redoSaves2);
+  }
   undoButton.style.userSelect = "none"; // Disable text selection
   undoButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(undoButton);
@@ -106,7 +120,16 @@ function Start(): void {
   //create button that redoes the game state and calls redoGameState
   const redoButton = document.createElement("button");
   redoButton.innerHTML = "Redo";
-  redoButton.onclick = redoGameState;
+  switch(selectedSave){
+    case 0:
+      redoButton.onclick = () => redoGameState(allSaves0, redoSaves0);
+      break;
+    case 1:
+      redoButton.onclick = () => redoGameState(allSaves1, redoSaves1);
+      break;
+    case 2:
+      redoButton.onclick = () => redoGameState(allSaves2, redoSaves2);
+  }
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
   document.body.appendChild(redoButton);
@@ -117,8 +140,19 @@ function Start(): void {
 function resetGameState(): void {
   console.log("Game state reset.");
   currentDay = 1;
-  allSaves = [];
-  redoSaves = [];
+  switch(selectedSave){
+    case 0:
+      allSaves0 = [];
+      redoSaves0 = [];
+      break;
+    case 1:
+      allSaves1 = [];
+      redoSaves1 = [];
+      break;
+    case 2:
+      allSaves2 = [];
+      redoSaves2 = [];
+  }
   topText = topTextFormat;
   player.x = 0;
   player.y = 0;
@@ -479,7 +513,7 @@ document.onkeydown = function (e) {
   }
 };
 
-function undoGameState(){
+function undoGameState(allSaves: gameState[], redoSaves: gameState[]){
   if (allSaves.length > 1){
     const undoSave = allSaves.pop();
     if (undoSave){
@@ -493,7 +527,7 @@ function undoGameState(){
   else resetGameState();
 }
 
-function redoGameState(){
+function redoGameState(allSaves: gameState[], redoSaves: gameState[]){
   if (redoSaves.length > 0){
     const redoSave = redoSaves.pop();
     if (redoSave){
@@ -517,8 +551,19 @@ function saveGame(board: InternalBoard) {
     height: BOARD_HEIGHT,
     grid: Array.from(board.getCells()), // Convert Uint8Array to a regular array
   };
-  allSaves.push(gameState);
-  localStorage.setItem("gameSaves", JSON.stringify(allSaves));
+  switch(selectedSave){
+    case 0:
+      allSaves0.push(gameState);
+      localStorage.setItem("gameSaves0", JSON.stringify(allSaves0));
+      break;
+    case 1:
+      allSaves1.push(gameState);
+      localStorage.setItem("gameSaves1", JSON.stringify(allSaves1));
+      break;
+    case 2:
+      allSaves2.push(gameState);
+      localStorage.setItem("gameSaves2", JSON.stringify(allSaves2));
+  }
   console.log("Game saved!");
 }
 
@@ -529,7 +574,16 @@ function loadGame(){
     const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
     if(rSaves){
       const redoSavesToLoad = JSON.parse(rSaves);
-      if (redoSavesToLoad) redoSaves = redoSavesToLoad;
+      switch(selectedSave){
+        case 0:
+          if (redoSavesToLoad) redoSaves0 = redoSavesToLoad;
+          break;
+        case 1:
+          if (redoSavesToLoad) redoSaves1 = redoSavesToLoad;
+          break;
+        case 2:
+          if (redoSavesToLoad) redoSaves2 = redoSavesToLoad;
+      }
     }
     if (savesToLoad) {
       const gameState = savesToLoad[savesToLoad.length - 1]; // gameState = first item of parsed array of game states
@@ -544,7 +598,16 @@ function loadGame(){
       topTextFormat +=
         "\nGrowth Rules: Plant needs to have at least 2 sun and 2 water, one neighbor of the same plant";
       topTextFormat += "\n\n Day  " + currentDay + ".";
-      allSaves = savesToLoad;
+      switch(selectedSave){
+        case 0:
+          allSaves0 = savesToLoad;
+          break;
+        case 1:
+          allSaves1 = savesToLoad;
+          break;
+        case 2:
+          allSaves2 = savesToLoad;
+      }
       internalBoard = new InternalBoard(gameState.width, gameState.height);
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
       updateDay();
