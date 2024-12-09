@@ -143,6 +143,7 @@ function resetGameState(): void {
   randomizeSunAndWater();
   //saveGame(internalBoard);
   displayBoard();
+  updateDay();
 }
 
 //displayBoard helper function, creates the table
@@ -320,6 +321,12 @@ function useItem(): void {
   }
   displayBoard();
   saveGame(internalBoard);
+}
+
+function updateDay(): void {
+  topText = "Use WASD to move the player. Day " + currentDay + ".";
+  displayBoard();
+  //saveGame(internalBoard); 
 }
 
 //call on sleep button input
@@ -540,7 +547,9 @@ function loadGame(){
       allSaves = savesToLoad;
       internalBoard = new InternalBoard(gameState.width, gameState.height);
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
+      updateDay();
       displayBoard();
+      
       console.log("Game loaded");
     }
     else{
