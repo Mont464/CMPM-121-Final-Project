@@ -136,9 +136,9 @@ function Start(): void {
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
   buttonsDiv.appendChild(redoButton);
-  if(app){
-    app.append(buttonsDiv);
-  }
+  //if(app){
+  document.body.appendChild(buttonsDiv);
+  //}
 }
 //FUNCTIONS==================================================================================================================================================
 
