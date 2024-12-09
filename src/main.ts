@@ -75,13 +75,14 @@ function Start(): void {
 
   //create reset button that calls displayBoard
  const buttonsDiv = document.createElement("div");
+ const app = document.getElementById("app")!;
 
   const resetButton = document.createElement("button");
   resetButton.innerHTML = "Reset";
   resetButton.onclick = resetGameState;
   resetButton.style.userSelect = "none"; // Disable text selection
   resetButton.style.cursor = "default"; // Disable text cursor
-  document.body.appendChild(resetButton);
+  app.appendChild(resetButton);
 
   //create button that passes time and calls passTime
   const passTimeButton = document.createElement("button");
@@ -135,7 +136,6 @@ function Start(): void {
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
   buttonsDiv.appendChild(redoButton);
-  const app = document.getElementById("app");
   if(app){
     app.append(buttonsDiv);
   }
