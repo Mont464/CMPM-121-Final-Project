@@ -1,4 +1,5 @@
 # F0 Devlog
+## F0 Parts
 ### F0.a
     Our game satisfies this requirement as the player is able to move in four directions (up, down, left, right)
     by using w,a,s,d on a 2d grid where the player is always in a cell. 
@@ -35,7 +36,7 @@
     Once the player has harvested 6 plants of any type and has them in their plant inventory, 
     the game will end and automatically restart.
 
-### F0 Reflection
+## F0 Reflection
     Not much has changed so far as we kept our scope pretty small for F0 and worked with tools we were comforatble with. 
     We will probably not use photoshop for assets, in fact we currently don't have plans for any art in the game at all. 
     We are open to the possibility of having unique art assets but it will have to come much later. The only think noteworthy 
@@ -43,6 +44,7 @@
     can, or is someone wants to help with design who isn't a designer, they can. 
 
 # F1 Devlog
+## F1 Parts
 ### F1.a
     The structure we made to store the board's data is an Array of Structures. 
     It is implemented in a new TS file internalBoard.ts. 
@@ -71,7 +73,7 @@
     Undo reverts the last plant placing or sleep done, and can be done until the field is empty(start of play state).
     Redo can be done as long as the player has used undos from the previous play state to get to the current play state.
 
-### F1 Reflection
+## F1 Reflection
     Many of us underestimated how much time other class projects would take, and ended up trying to
     complete this project in much less time than was possible. We have decided that F1 will likely be 
     the furthest this project will go given the time. The plan for F1 was not changed, and the roles were still fluid.
