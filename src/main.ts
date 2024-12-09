@@ -185,7 +185,7 @@ function resetGameState(): void {
     board[i] = [];
     for (let j = 0; j < BOARD_WIDTH; j++) {
       //if (i === 0 && j === 0) board[i][j] = "[_P_]";
-      /**else**/ board[i][j] = "[___]";
+      /**else**/ board[i][j] = "[__]";
     }
   }
   //create cells for the internal board
@@ -214,9 +214,9 @@ function createTable(table: HTMLTableElement): void {
       const td = document.createElement("td");
       const cellContent = internalBoard.getCell(j,i).content;
       if (cellContent && cellContent != "") {
-        td.innerHTML = "[_" + cellContent + "_]";
+        td.innerHTML = "[" + cellContent + "]";
       } else {
-        if((i != player.y || j != player.x) && board[i][j] == "[_🧍_]") td.innerHTML = "[___]";
+        if((i != player.y || j != player.x) && board[i][j] == "[🧍]") td.innerHTML = "[__]";
         else td.innerHTML = board[i][j];
       }
       td.style.userSelect = "none"; // Disable text selection
@@ -301,7 +301,7 @@ function removePlayerMarker(x: number, y: number){
 
 function movePlayer(dir: string): void {
   // Clear the current player cell
-  board[player.y][player.x] = "[___]";
+  board[player.y][player.x] = "[__]";
   removePlayerMarker(player.x, player.y);  // First clear old player position
 
   switch (dir) {
@@ -328,7 +328,7 @@ function movePlayer(dir: string): void {
   }
 
   // After moving, update the new position with the player representation
-  board[player.y][player.x] = "[_🧍_]";
+  board[player.y][player.x] = "[🧍]";
   internalBoard.appendContent(player.x, player.y, "🧍");
 
   displayBoard();  // Refresh the display after moving
