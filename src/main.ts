@@ -76,7 +76,7 @@ function Start(): void {
 
   //create reset button that calls displayBoard
  const buttonsDiv = document.createElement("div");
- const app = document.getElementById("app")!;
+ const _app = document.getElementById("app")!;
 
   const resetButton = document.createElement("button");
   resetButton.innerHTML = "Reset";
@@ -585,13 +585,30 @@ function saveGame(board: InternalBoard) {
     case 2:
       allSaves2.push(gameState);
       localStorage.setItem("gameSaves2", JSON.stringify(allSaves2));
+      break;
   }
   console.log("Game saved!");
 }
 
 function loadGame(){
-  const gameSaves = localStorage.getItem("gameSaves"); //gameSaves = unparsed array of unparsed stringified game states
-  const rSaves = localStorage.getItem("redoSaves");
+  let gameSaves = null;
+  let rSaves = null;
+  switch(selectedSave){
+    case 0:
+      gameSaves = localStorage.getItem("gameSaves0");
+      rSaves = localStorage.getItem("redoSaves0");
+      break;
+    case 1:
+      gameSaves = localStorage.getItem("gameSaves1");
+      rSaves = localStorage.getItem("redoSaves1");
+      break;
+    case 2:
+      gameSaves = localStorage.getItem("gameSaves2");
+      rSaves = localStorage.getItem("redoSaves2");
+      break;
+  }
+  //const gameSaves = localStorage.getItem("gameSaves"); //gameSaves = unparsed array of unparsed stringified game states
+  //const rSaves = localStorage.getItem("redoSaves");
   if (gameSaves){
     const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
     if(rSaves){
