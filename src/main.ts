@@ -74,12 +74,14 @@ function Start(): void {
   });
 
   //create reset button that calls displayBoard
+ const buttonsDiv = document.createElement("div");
+
   const resetButton = document.createElement("button");
   resetButton.innerHTML = "Reset";
   resetButton.onclick = resetGameState;
   resetButton.style.userSelect = "none"; // Disable text selection
   resetButton.style.cursor = "default"; // Disable text cursor
-  document.body.appendChild(resetButton);
+  buttonsDiv.appendChild(resetButton);
 
   //create button that passes time and calls passTime
   const passTimeButton = document.createElement("button");
@@ -87,7 +89,7 @@ function Start(): void {
   passTimeButton.onclick = passTime;
   passTimeButton.style.userSelect = "none"; // Disable text selection
   passTimeButton.style.cursor = "default"; // Disable text cursor
-  document.body.appendChild(passTimeButton);
+  buttonsDiv.appendChild(passTimeButton);
 
   //create button that saves the game and calls saveGame
   const saveGameButton = document.createElement("button");
@@ -97,7 +99,7 @@ function Start(): void {
   saveGameButton.addEventListener("click", () => {
     saveGame(internalBoard);
   });
-  document.body.appendChild(saveGameButton);
+  buttonsDiv.appendChild(saveGameButton);
 
 
   //create button that undoes the game state and calls undoGameState
@@ -115,7 +117,7 @@ function Start(): void {
   }
   undoButton.style.userSelect = "none"; // Disable text selection
   undoButton.style.cursor = "default"; // Disable text cursor
-  document.body.appendChild(undoButton);
+  buttonsDiv.appendChild(undoButton);
 
   //create button that redoes the game state and calls redoGameState
   const redoButton = document.createElement("button");
@@ -132,7 +134,11 @@ function Start(): void {
   }
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
-  document.body.appendChild(redoButton);
+  buttonsDiv.appendChild(redoButton);
+  const app = document.getElementById("app");
+  if(app){
+    app.append(buttonsDiv);
+  }
 }
 //FUNCTIONS==================================================================================================================================================
 
