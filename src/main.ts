@@ -38,6 +38,9 @@ interface Cell {
 
 interface gameState{
   playerPlants: string[],
+  playerSeeds: string[],
+  playerX: number,
+  playerY: number,
   currDay: number,
   width: number,
   height: number,
@@ -125,18 +128,20 @@ function resetGameState(): void {
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     board[i] = [];
     for (let j = 0; j < BOARD_WIDTH; j++) {
-      if (i === 0 && j === 0) board[i][j] = "[_P_]";
-      else board[i][j] = "[___]";
+      //if (i === 0 && j === 0) board[i][j] = "[_P_]";
+      /**else**/ board[i][j] = "[___]";
     }
   }
   //create cells for the internal board
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const cell = { content: "", sun: 0, water: 0, x: j, y: i };
+      if (i === 0 && j === 0) cell.content = "P";
       internalBoard.setCell(j,i,cell);
     }
   }
   randomizeSunAndWater();
+  //saveGame(internalBoard);
   displayBoard();
 }
 
@@ -150,7 +155,7 @@ function createTable(table: HTMLTableElement): void {
     //create the columns
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const td = document.createElement("td");
-      const cellContent = internalBoard.getCell(j,i).content
+      const cellContent = internalBoard.getCell(j,i).content;
       if (cellContent && cellContent != "") {
         td.innerHTML = "[_" + cellContent + "_]";
       } else td.innerHTML = board[i][j];
@@ -489,6 +494,9 @@ function redoGameState(){
 function saveGame(board: InternalBoard) {
   const gameState: gameState = {
     playerPlants: player.plants_inventory,
+    playerSeeds: player.seeds_inventory,
+    playerX: player.x,
+    playerY: player.y,
     currDay: currentDay,
     width: BOARD_WIDTH,
     height: BOARD_HEIGHT,
@@ -504,9 +512,11 @@ function loadGame(){
   if (gameSaves){
     const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
     if (savesToLoad) {
-      const gameState = savesToLoad[0]; // gameState = first item of parsed array of game states
-      console.log("this is gameState to load: "+ gameState);
+      const gameState = savesToLoad[savesToLoad.length - 1]; // gameState = first item of parsed array of game states
       player.plants_inventory = gameState.playerPlants;
+      if(gameState.playerSeeds != undefined)player.seeds_inventory = gameState.playerSeeds;
+      player.x = gameState.playerX;
+      player.y = gameState.playerY;
       currentDay = gameState.currDay;
       topTextFormat =
         "Use WASD to move the player. \n Use Arrow Keys to choose item. \n Use 'E' to use item. \n Use 'H' to harvest ";
