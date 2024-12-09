@@ -82,7 +82,7 @@ function Start(): void {
   resetButton.onclick = resetGameState;
   resetButton.style.userSelect = "none"; // Disable text selection
   resetButton.style.cursor = "default"; // Disable text cursor
-  app.appendChild(resetButton);
+  buttonsDiv.appendChild(resetButton);
 
   //create button that passes time and calls passTime
   const passTimeButton = document.createElement("button");
