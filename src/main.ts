@@ -478,6 +478,7 @@ function undoGameState(){
     if (undoSave){
       redoSaves.push(undoSave);
       localStorage.setItem("gameSaves", JSON.stringify(allSaves));
+      localStorage.setItem("redoSaves", JSON.stringify(redoSaves));
       loadGame();
       console.log("Undo!");
     }
@@ -486,10 +487,12 @@ function undoGameState(){
 }
 
 function redoGameState(){
-  if (redoSaves.length != 0){
-    const redoSave = redoSaves.shift();
+  if (redoSaves.length > 0){
+    const redoSave = redoSaves.pop();
     if (redoSave){
       allSaves.push(redoSave);
+      localStorage.setItem("gameSaves", JSON.stringify(allSaves));
+      localStorage.setItem("redoSaves", JSON.stringify(redoSaves));
       loadGame();
       console.log("Redo!");
     }
@@ -514,8 +517,13 @@ function saveGame(board: InternalBoard) {
 
 function loadGame(){
   const gameSaves = localStorage.getItem("gameSaves"); //gameSaves = unparsed array of unparsed stringified game states
+  const rSaves = localStorage.getItem("redoSaves");
   if (gameSaves){
     const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
+    if(rSaves){
+      const redoSavesToLoad = JSON.parse(rSaves);
+      if (redoSavesToLoad) redoSaves = redoSavesToLoad;
+    }
     if (savesToLoad) {
       const gameState = savesToLoad[savesToLoad.length - 1]; // gameState = first item of parsed array of game states
       player.plants_inventory = gameState.playerPlants;
