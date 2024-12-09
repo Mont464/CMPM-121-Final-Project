@@ -109,13 +109,13 @@ function Start(): void {
   undoButton.innerHTML = "Undo";
   switch(selectedSave){
     case 0:
-      undoButton.onclick = () => undoGameState(allSaves0, redoSaves0);
+      undoButton.onclick = () => undoGameState(allSaves0, redoSaves0, 0);
       break;
     case 1:
-      undoButton.onclick = () => undoGameState(allSaves1, redoSaves1);
+      undoButton.onclick = () => undoGameState(allSaves1, redoSaves1, 1);
       break;
     case 2:
-      undoButton.onclick = () => undoGameState(allSaves2, redoSaves2);
+      undoButton.onclick = () => undoGameState(allSaves2, redoSaves2, 2);
   }
   undoButton.style.userSelect = "none"; // Disable text selection
   undoButton.style.cursor = "default"; // Disable text cursor
@@ -126,13 +126,13 @@ function Start(): void {
   redoButton.innerHTML = "Redo";
   switch(selectedSave){
     case 0:
-      redoButton.onclick = () => redoGameState(allSaves0, redoSaves0);
+      redoButton.onclick = () => redoGameState(allSaves0, redoSaves0, 0);
       break;
     case 1:
-      redoButton.onclick = () => redoGameState(allSaves1, redoSaves1);
+      redoButton.onclick = () => redoGameState(allSaves1, redoSaves1, 1);
       break;
     case 2:
-      redoButton.onclick = () => redoGameState(allSaves2, redoSaves2);
+      redoButton.onclick = () => redoGameState(allSaves2, redoSaves2, 2);
   }
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
@@ -216,7 +216,7 @@ function createTable(table: HTMLTableElement): void {
       if (cellContent && cellContent != "") {
         td.innerHTML = "[_" + cellContent + "_]";
       } else {
-        if((i != player.y || j != player.x) && board[i][j] == "[_P_]") td.innerHTML = "[__]";
+        if((i != player.y || j != player.x) && board[i][j] == "[_P_]") td.innerHTML = "[___]";
         else td.innerHTML = board[i][j];
       }
       td.style.userSelect = "none"; // Disable text selection
@@ -535,27 +535,50 @@ document.onkeydown = function (e) {
   }
 };
 
-function undoGameState(allSaves: gameState[], redoSaves: gameState[]){
+function undoGameState(allSaves: gameState[], redoSaves: gameState[], selectedSave: number){
   if (allSaves.length > 1){
     const undoSave = allSaves.pop();
     if (undoSave){
       redoSaves.push(undoSave);
-      localStorage.setItem("gameSaves", JSON.stringify(allSaves));
-      localStorage.setItem("redoSaves", JSON.stringify(redoSaves));
+      switch(selectedSave){
+        case 0:
+          localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves0", JSON.stringify(redoSaves));
+          break;
+        case 1:
+          localStorage.setItem("gameSaves1", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves1", JSON.stringify(redoSaves));
+          break;
+        case 2:
+          localStorage.setItem("gameSaves2", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves2", JSON.stringify(redoSaves));
+          break;
+      }
       loadGame();
       console.log("Undo!");
     }
   }
-  else resetGameState();
 }
 
-function redoGameState(allSaves: gameState[], redoSaves: gameState[]){
+function redoGameState(allSaves: gameState[], redoSaves: gameState[], selectedSave: number){
   if (redoSaves.length > 0){
     const redoSave = redoSaves.pop();
     if (redoSave){
       allSaves.push(redoSave);
-      localStorage.setItem("gameSaves", JSON.stringify(allSaves));
-      localStorage.setItem("redoSaves", JSON.stringify(redoSaves));
+      switch(selectedSave){
+        case 0:
+          localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves0", JSON.stringify(redoSaves));
+          break;
+        case 1:
+          localStorage.setItem("gameSaves1", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves1", JSON.stringify(redoSaves));
+          break;
+        case 2:
+          localStorage.setItem("gameSaves2", JSON.stringify(allSaves));
+          localStorage.setItem("redoSaves2", JSON.stringify(redoSaves));
+          break;
+      }
       loadGame();
       console.log("Redo!");
     }
