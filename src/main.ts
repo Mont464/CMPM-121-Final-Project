@@ -185,14 +185,14 @@ function resetGameState(): void {
     board[i] = [];
     for (let j = 0; j < BOARD_WIDTH; j++) {
       //if (i === 0 && j === 0) board[i][j] = "[_P_]";
-      /**else**/ board[i][j] = "[___]";
+      /**else**/ board[i][j] = "[__]";
     }
   }
   //create cells for the internal board
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const cell = { content: "", sun: 0, water: 0, x: j, y: i };
-      if (i === 0 && j === 0) cell.content = "P";
+      if (i === 0 && j === 0) cell.content = "🧍";
       internalBoard.setCell(j,i,cell);
     }
   }
@@ -214,9 +214,9 @@ function createTable(table: HTMLTableElement): void {
       const td = document.createElement("td");
       const cellContent = internalBoard.getCell(j,i).content;
       if (cellContent && cellContent != "") {
-        td.innerHTML = "[_" + cellContent + "_]";
+        td.innerHTML = "[" + cellContent + "]";
       } else {
-        if((i != player.y || j != player.x) && board[i][j] == "[_P_]") td.innerHTML = "[___]";
+        if((i != player.y || j != player.x) && board[i][j] == "[🧍]") td.innerHTML = "[__]";
         else td.innerHTML = board[i][j];
       }
       td.style.userSelect = "none"; // Disable text selection
@@ -291,7 +291,7 @@ function displayBoard(): void {
 
 // Helper function to remove instances of "P" from a string
 function removeP(cell: string): string {
-  return cell.replace(/P/g, "");
+  return cell.replace(/🧍/g, "");
 }
 
 function removePlayerMarker(x: number, y: number){
@@ -299,47 +299,39 @@ function removePlayerMarker(x: number, y: number){
   internalBoard.setContent(x, y, newContent);
 }
 
-//call on WASD input
 function movePlayer(dir: string): void {
+  // Clear the current player cell
+  board[player.y][player.x] = "[__]";
+  removePlayerMarker(player.x, player.y);  // First clear old player position
+
   switch (dir) {
     case "up":
       if (player.y > 0) {
-        board[player.y][player.x] = "[___]";
-        removePlayerMarker(player.x,player.y);
         player.y--;
-        board[player.y][player.x] = "[_P_]";
-        internalBoard.appendContent(player.x,player.y,"P")
       }
       break;
     case "down":
       if (player.y < BOARD_HEIGHT - 1) {
-        board[player.y][player.x] = "[___]";
-        removePlayerMarker(player.x,player.y);
         player.y++;
-        board[player.y][player.x] = "[_P_]";
-        internalBoard.appendContent(player.x,player.y,"P")
       }
       break;
     case "left":
       if (player.x > 0) {
-        board[player.y][player.x] = "[___]";
-        removePlayerMarker(player.x,player.y);
         player.x--;
-        board[player.y][player.x] = "[_P_]";
-        internalBoard.appendContent(player.x,player.y,"P")
       }
       break;
     case "right":
       if (player.x < BOARD_WIDTH - 1) {
-        board[player.y][player.x] = "[___]";
-        removePlayerMarker(player.x,player.y);
         player.x++;
-        board[player.y][player.x] = "[_P_]";
-        internalBoard.appendContent(player.x,player.y,"P")
       }
       break;
   }
-  displayBoard();
+
+  // After moving, update the new position with the player representation
+  board[player.y][player.x] = "[🧍]";
+  internalBoard.appendContent(player.x, player.y, "🧍");
+
+  displayBoard();  // Refresh the display after moving
 }
 
 //call on arrow key input
@@ -364,15 +356,15 @@ function useItem(): void {
   switch (item) {
     case "corn kernels":
       console.log("You planted corn!");
-      internalBoard.appendContent(player.x, player.y, "C1");
+      internalBoard.appendContent(player.x, player.y, "🌿");
       break;
     case "bean sprout":
       console.log("You planted beans!");
-      internalBoard.appendContent(player.x, player.y, "B1");
+      internalBoard.appendContent(player.x, player.y, "🌱");
       break;
     case "tomato seeds":
       console.log("You planted tomatoes!");
-      internalBoard.appendContent(player.x, player.y, "T1");
+      internalBoard.appendContent(player.x, player.y, "🥬");
       break;
   }
   displayBoard();
@@ -398,12 +390,12 @@ function passTime(): void {
 // call whenever player passes the time
 function growPlants(): void {
   const growthStages: { [key: string]: string } = {
-    C1: "C2",
-    C2: "C3",
-    B1: "B2",
-    B2: "B3",
-    T1: "T2",
-    T2: "T3",
+    "🌿" : "🌾",
+    "🌾" : "🌽",
+    "🌱" : "🫛",
+    "🫛" : "🫘",
+    "🥬" : "🌼",
+    "🌼" : "🍅",
   };
 
   for (let i = 0; i < BOARD_HEIGHT ; i ++ ){
@@ -412,13 +404,13 @@ function growPlants(): void {
       if (
         cell.sun >= 2 &&
         cell.water >= 2 &&
-        hasNeighbor(cell, cell.content.replace("P", ""))
+        hasNeighbor(cell, cell.content.replace("🧍", ""))
       ) {
-        const hasPlayer = cell.content.includes("P");
-        const cellContentNoPlayer = cell.content.replace("P", "");
+        const hasPlayer = cell.content.includes("🧍");
+        const cellContentNoPlayer = cell.content.replace("🧍", "");
   
         const cellContent = growthStages[cellContentNoPlayer] || cellContentNoPlayer;
-        cell.content = hasPlayer ? cellContent + "P" : cellContent;
+        cell.content = hasPlayer ? cellContent + "🧍" : cellContent;
         cell.water--; // reduce cell water by two for growing plant
         internalBoard.setCell(j,i,cell);
       }
@@ -475,29 +467,29 @@ function randomizeSunAndWater(): void {
 
 function harvest() {
   const cell = internalBoard.getCell(player.x,player.y);
-  if (cell.content.indexOf("3") >= 0) {
-    switch (cell.content[0]) {
-      case "C":
-        cell.content = "";
-        player.plants_inventory.push("corn");
-        break;
-      case "B":
-        cell.content = "";
-        player.plants_inventory.push("beans");
-        break;
-      case "T":
-        cell.content = "";
-        player.plants_inventory.push("tomato");
-        break;
-    }
-    if (player.plants_inventory.length > 5) {
-      alert("You win!");
-      resetGameState();
-    }
-    internalBoard.setCell(player.x,player.y,cell);
-    displayBoard();
-    saveGame(internalBoard);
+  switch (cell.content) {
+    case "🌽🧍":
+      console.log("harvesting corn");
+      cell.content = "";
+      player.plants_inventory.push("corn");
+      break;
+    case "🫘🧍":
+      cell.content = "";
+      player.plants_inventory.push("beans");
+      break;
+    case "🍅🧍":
+      cell.content = "";
+      player.plants_inventory.push("tomato");
+      break;
   }
+  if (player.plants_inventory.length > 5) {
+    alert("You win!");
+    resetGameState();
+  }
+  internalBoard.setCell(player.x,player.y,cell);
+  displayBoard();
+  saveGame(internalBoard);
+  //}
 }
 
 //input handling
@@ -527,7 +519,7 @@ document.onkeydown = function (e) {
     case "e":
       if (
         internalBoard.getCell(player.x,player.y).content == "" ||
-        internalBoard.getCell(player.x,player.y).content == "P"
+        internalBoard.getCell(player.x,player.y).content == "🧍"
       ) {
         useItem();
         break;
