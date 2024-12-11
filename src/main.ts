@@ -108,13 +108,16 @@ function Start(): void {
   undoButton.innerHTML = "Undo";
   switch (selectedSave) {
     case 0:
-      undoButton.onclick = () => undoGameState(allSaves0, redoSaves0, 0);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves0, redoSaves0, 0, "undo");
       break;
     case 1:
-      undoButton.onclick = () => undoGameState(allSaves1, redoSaves1, 1);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves1, redoSaves1, 1, "undo");
       break;
     case 2:
-      undoButton.onclick = () => undoGameState(allSaves2, redoSaves2, 2);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves2, redoSaves2, 2, "undo");
   }
   undoButton.style.userSelect = "none"; // Disable text selection
   undoButton.style.cursor = "default"; // Disable text cursor
@@ -125,13 +128,16 @@ function Start(): void {
   redoButton.innerHTML = "Redo";
   switch (selectedSave) {
     case 0:
-      redoButton.onclick = () => redoGameState(allSaves0, redoSaves0, 0);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves0, redoSaves0, 0, "redo");
       break;
     case 1:
-      redoButton.onclick = () => redoGameState(allSaves1, redoSaves1, 1);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves1, redoSaves1, 1, "redo");
       break;
     case 2:
-      redoButton.onclick = () => redoGameState(allSaves2, redoSaves2, 2);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves2, redoSaves2, 2, "redo");
   }
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
@@ -350,21 +356,21 @@ function handleDigitalCursor(direction: boolean): void {
 //call on space bar input
 function useItem(): void {
   const item = player.seeds_inventory[player.digitalCursorIndex];
-
+  let itemText: string[] = [];
   switch (item) {
     case "corn kernels":
-      console.log("You planted corn!");
-      internalBoard.appendContent(player.x, player.y, "🌿");
+      itemText = ["corn", "🌿"];
       break;
     case "bean sprout":
-      console.log("You planted beans!");
-      internalBoard.appendContent(player.x, player.y, "🌱");
+      itemText = ["beans", "🌱"];
       break;
     case "tomato seeds":
-      console.log("You planted tomatoes!");
-      internalBoard.appendContent(player.x, player.y, "🥬");
+      itemText = ["tomatoes", "🥬"];
       break;
   }
+  console.log("You planted " + itemText[0] + "!");
+  internalBoard.appendContent(player.x, player.y, itemText[1]);
+
   displayBoard();
   saveGame(internalBoard);
 }
@@ -526,44 +532,28 @@ document.onkeydown = function (e) {
   }
 };
 
-function undoGameState(
+function undoRedoGameState(
   allSaves: gameState[],
   redoSaves: gameState[],
-  selectedSave: number
+  selectedSave: number,
+  undoRedoSelection: string
 ) {
   if (allSaves.length > 1) {
-    const undoSave = allSaves.pop();
-    if (undoSave) {
-      redoSaves.push(undoSave);
-      switch (selectedSave) {
-        case 0:
-          localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves0", JSON.stringify(redoSaves));
-          break;
-        case 1:
-          localStorage.setItem("gameSaves1", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves1", JSON.stringify(redoSaves));
-          break;
-        case 2:
-          localStorage.setItem("gameSaves2", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves2", JSON.stringify(redoSaves));
-          break;
-      }
-      loadGame();
-      console.log("Undo!");
-    }
-  }
-}
+    let save: gameState | undefined;
 
-function redoGameState(
-  allSaves: gameState[],
-  redoSaves: gameState[],
-  selectedSave: number
-) {
-  if (redoSaves.length > 0) {
-    const redoSave = redoSaves.pop();
-    if (redoSave) {
-      allSaves.push(redoSave);
+    if (undoRedoSelection == "undo") {
+      save = allSaves.pop();
+      if (save) {
+        redoSaves.push(save);
+      }
+    } else if (undoRedoSelection == "redo") {
+      save = redoSaves.pop();
+      if (save) {
+        allSaves.push(save);
+      }
+    }
+
+    if (save) {
       switch (selectedSave) {
         case 0:
           localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
@@ -579,7 +569,7 @@ function redoGameState(
           break;
       }
       loadGame();
-      console.log("Redo!");
+      console.log(undoRedoSelection + "!");
     }
   }
 }
