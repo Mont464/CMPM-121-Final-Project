@@ -1,10 +1,10 @@
 import "./style.css";
-import {InternalBoard} from "./internalBoard.ts"
+import { InternalBoard } from "./internalBoard.ts";
 //INIT GLOBAL VARS==========================================================================================================================================
 
 //instructions and game state string
 let currentDay = 1;
-let selectedSave = 0;//0, 1, 2
+let selectedSave = 0; //0, 1, 2
 let topText = "";
 let topTextFormat =
   "Use WASD to move the player. \n Use Arrow Keys to choose item. \n Use 'E' to use item. \n Use 'H' to harvest ";
@@ -37,15 +37,15 @@ interface Cell {
   y: number;
 }
 
-interface gameState{
-  playerPlants: string[],
-  playerSeeds: string[],
-  playerX: number,
-  playerY: number,
-  currDay: number,
-  width: number,
-  height: number,
-  grid: number[]
+interface gameState {
+  playerPlants: string[];
+  playerSeeds: string[];
+  playerX: number;
+  playerY: number;
+  currDay: number;
+  width: number;
+  height: number;
+  grid: number[];
 }
 
 //board dimensions
@@ -71,12 +71,12 @@ function Start(): void {
 
   //load the most recently saved game state
   document.addEventListener("DOMContentLoaded", () => {
-      loadGame();
+    loadGame();
   });
 
   //create reset button that calls displayBoard
- const buttonsDiv = document.createElement("div");
- const _app = document.getElementById("app")!;
+  const buttonsDiv = document.createElement("div");
+  const _app = document.getElementById("app")!;
 
   const resetButton = document.createElement("button");
   resetButton.innerHTML = "Reset";
@@ -103,19 +103,21 @@ function Start(): void {
   });
   buttonsDiv.appendChild(saveGameButton);
 
-
   //create button that undoes the game state and calls undoGameState
   const undoButton = document.createElement("button");
   undoButton.innerHTML = "Undo";
-  switch(selectedSave){
+  switch (selectedSave) {
     case 0:
-      undoButton.onclick = () => undoGameState(allSaves0, redoSaves0, 0);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves0, redoSaves0, 0, "undo");
       break;
     case 1:
-      undoButton.onclick = () => undoGameState(allSaves1, redoSaves1, 1);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves1, redoSaves1, 1, "undo");
       break;
     case 2:
-      undoButton.onclick = () => undoGameState(allSaves2, redoSaves2, 2);
+      undoButton.onclick = () =>
+        undoRedoGameState(allSaves2, redoSaves2, 2, "undo");
   }
   undoButton.style.userSelect = "none"; // Disable text selection
   undoButton.style.cursor = "default"; // Disable text cursor
@@ -124,15 +126,18 @@ function Start(): void {
   //create button that redoes the game state and calls redoGameState
   const redoButton = document.createElement("button");
   redoButton.innerHTML = "Redo";
-  switch(selectedSave){
+  switch (selectedSave) {
     case 0:
-      redoButton.onclick = () => redoGameState(allSaves0, redoSaves0, 0);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves0, redoSaves0, 0, "redo");
       break;
     case 1:
-      redoButton.onclick = () => redoGameState(allSaves1, redoSaves1, 1);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves1, redoSaves1, 1, "redo");
       break;
     case 2:
-      redoButton.onclick = () => redoGameState(allSaves2, redoSaves2, 2);
+      redoButton.onclick = () =>
+        undoRedoGameState(allSaves2, redoSaves2, 2, "redo");
   }
   redoButton.style.userSelect = "none"; // Disable text selection
   redoButton.style.cursor = "default"; // Disable text cursor
@@ -162,7 +167,7 @@ function selectSaveFile(): number {
 function resetGameState(): void {
   console.log("Game state reset.");
   currentDay = 1;
-  switch(selectedSave){
+  switch (selectedSave) {
     case 0:
       allSaves0 = [];
       redoSaves0 = [];
@@ -193,7 +198,7 @@ function resetGameState(): void {
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const cell = { content: "", sun: 0, water: 0, x: j, y: i };
       if (i === 0 && j === 0) cell.content = "🧍";
-      internalBoard.setCell(j,i,cell);
+      internalBoard.setCell(j, i, cell);
     }
   }
   randomizeSunAndWater();
@@ -212,11 +217,12 @@ function createTable(table: HTMLTableElement): void {
     //create the columns
     for (let j = 0; j < BOARD_WIDTH; j++) {
       const td = document.createElement("td");
-      const cellContent = internalBoard.getCell(j,i).content;
+      const cellContent = internalBoard.getCell(j, i).content;
       if (cellContent && cellContent != "") {
         td.innerHTML = "[" + cellContent + "]";
       } else {
-        if((i != player.y || j != player.x) && board[i][j] == "[🧍]") td.innerHTML = "[__]";
+        if ((i != player.y || j != player.x) && board[i][j] == "[🧍]")
+          td.innerHTML = "[__]";
         else td.innerHTML = board[i][j];
       }
       td.style.userSelect = "none"; // Disable text selection
@@ -250,7 +256,7 @@ function displayBoard(): void {
     app.prepend(headerInstructions);
 
     //add header with info on cell's water and sun
-    const playerCell = internalBoard.getCell(player.x,player.y);
+    const playerCell = internalBoard.getCell(player.x, player.y);
     const headerCellInfo = document.createElement("h3");
     const s = playerCell.sun;
     const w = playerCell.water;
@@ -261,13 +267,13 @@ function displayBoard(): void {
 
     //add body text with player inventory
     const body = document.createElement("p");
-    let inventoryString = " Seed Inventory: ";
+    let inventoryString = " Seed Inventory: "; //Placable Plant options
     for (let i = 0; i < player.seeds_inventory.length; i++) {
       if (i === player.digitalCursorIndex) inventoryString += ">";
       inventoryString += player.seeds_inventory[i];
       if (i !== player.seeds_inventory.length - 1) inventoryString += ", ";
     }
-    inventoryString += "\n Plant Inventory: ";
+    inventoryString += "\n Plant Inventory: "; //Harvested plant display to show progress towards win
     for (let i = 0; i < player.plants_inventory.length; i++) {
       if (i === player.digitalCursorIndex) inventoryString += ">";
       inventoryString += player.plants_inventory[i];
@@ -289,22 +295,22 @@ function displayBoard(): void {
   }
 }
 
-// Helper function to remove instances of "P" from a string
-function removeP(cell: string): string {
+// Helper function to remove instances of "🧍" from a string
+function removePlayerEmoji(cell: string): string {
   return cell.replace(/🧍/g, "");
 }
 
-function removePlayerMarker(x: number, y: number){
-  const newContent = removeP(internalBoard.getCell(x,y).content);
+function removePlayerMarker(x: number, y: number) {
+  const newContent = removePlayerEmoji(internalBoard.getCell(x, y).content);
   internalBoard.setContent(x, y, newContent);
 }
 
-function movePlayer(dir: string): void {
+function movePlayer(moveDirection: string): void {
   // Clear the current player cell
   board[player.y][player.x] = "[__]";
-  removePlayerMarker(player.x, player.y);  // First clear old player position
+  removePlayerMarker(player.x, player.y);
 
-  switch (dir) {
+  switch (moveDirection) {
     case "up":
       if (player.y > 0) {
         player.y--;
@@ -331,13 +337,13 @@ function movePlayer(dir: string): void {
   board[player.y][player.x] = "[🧍]";
   internalBoard.appendContent(player.x, player.y, "🧍");
 
-  displayBoard();  // Refresh the display after moving
+  displayBoard(); // Refresh the display after moving
 }
 
 //call on arrow key input
-function handleDigitalCursor(dir: boolean): void {
-  //true is right, false is left
-  if (dir) {
+function handleDigitalCursor(direction: boolean): void {
+  //direction: true is right, false is left
+  if (direction) {
     if (player.digitalCursorIndex < player.seeds_inventory.length - 1) {
       player.digitalCursorIndex++;
     }
@@ -350,23 +356,21 @@ function handleDigitalCursor(dir: boolean): void {
 //call on space bar input
 function useItem(): void {
   const item = player.seeds_inventory[player.digitalCursorIndex];
-  //Uncomment to deacrease item, infinite items for now.
-  //player.inventory.splice(player.digitalCursorIndex, 1);
-  //if(player.digitalCursorIndex > 0) player.digitalCursorIndex--;
+  let itemText: string[] = [];
   switch (item) {
     case "corn kernels":
-      console.log("You planted corn!");
-      internalBoard.appendContent(player.x, player.y, "🌿");
+      itemText = ["corn", "🌿"];
       break;
     case "bean sprout":
-      console.log("You planted beans!");
-      internalBoard.appendContent(player.x, player.y, "🌱");
+      itemText = ["beans", "🌱"];
       break;
     case "tomato seeds":
-      console.log("You planted tomatoes!");
-      internalBoard.appendContent(player.x, player.y, "🥬");
+      itemText = ["tomatoes", "🥬"];
       break;
   }
+  console.log("You planted " + itemText[0] + "!");
+  internalBoard.appendContent(player.x, player.y, itemText[1]);
+
   displayBoard();
   saveGame(internalBoard);
 }
@@ -374,7 +378,6 @@ function useItem(): void {
 function updateDay(): void {
   topText = "Use WASD to move the player. Day " + currentDay + ".";
   displayBoard();
-  //saveGame(internalBoard); 
 }
 
 //call on sleep button input
@@ -390,17 +393,17 @@ function passTime(): void {
 // call whenever player passes the time
 function growPlants(): void {
   const growthStages: { [key: string]: string } = {
-    "🌿" : "🌾",
-    "🌾" : "🌽",
-    "🌱" : "🫛",
-    "🫛" : "🫘",
-    "🥬" : "🌼",
-    "🌼" : "🍅",
+    "🌿": "🌾",
+    "🌾": "🌽",
+    "🌱": "🫛",
+    "🫛": "🫘",
+    "🥬": "🌼",
+    "🌼": "🍅",
   };
 
-  for (let i = 0; i < BOARD_HEIGHT ; i ++ ){
-    for( let j = 0; j < BOARD_WIDTH; j ++ ){
-      const cell = internalBoard.getCell(j,i);
+  for (let i = 0; i < BOARD_HEIGHT; i++) {
+    for (let j = 0; j < BOARD_WIDTH; j++) {
+      const cell = internalBoard.getCell(j, i);
       if (
         cell.sun >= 2 &&
         cell.water >= 2 &&
@@ -408,15 +411,15 @@ function growPlants(): void {
       ) {
         const hasPlayer = cell.content.includes("🧍");
         const cellContentNoPlayer = cell.content.replace("🧍", "");
-  
-        const cellContent = growthStages[cellContentNoPlayer] || cellContentNoPlayer;
+
+        const cellContent =
+          growthStages[cellContentNoPlayer] || cellContentNoPlayer;
         cell.content = hasPlayer ? cellContent + "🧍" : cellContent;
         cell.water--; // reduce cell water by two for growing plant
-        internalBoard.setCell(j,i,cell);
+        internalBoard.setCell(j, i, cell);
       }
     }
   }
-
 }
 
 //check neighbor of cell.
@@ -435,12 +438,13 @@ function hasNeighbor(cell: Cell, plant: string): boolean {
   const rows = BOARD_HEIGHT;
   const cols = BOARD_WIDTH;
 
+  //Check each neighbor for the same plant
   for (const { dx, dy } of directions) {
     const X = cell.x + dx;
     const Y = cell.y + dy;
 
     if (X >= 0 && X < cols && Y >= 0 && Y < rows) {
-      if (internalBoard.getCell(X,Y).content[0] === plant[0]) {
+      if (internalBoard.getCell(X, Y).content[0] === plant[0]) {
         return true;
       }
     }
@@ -453,23 +457,23 @@ function hasNeighbor(cell: Cell, plant: string): boolean {
 function randomizeSunAndWater(): void {
   for (let i = 0; i < BOARD_HEIGHT; i++) {
     for (let j = 0; j < BOARD_WIDTH; j++) {
-      const cell = internalBoard.getCell(j,i);
+      const cell = internalBoard.getCell(j, i);
 
       cell.sun = Math.floor(Math.random() * 3) + 1;
 
       const waterIncrease = Math.floor(Math.random() * 3);
       cell.water += waterIncrease;
       cell.water = Math.min(cell.water, 10);
-      internalBoard.setCell(j,i,cell);
+      internalBoard.setCell(j, i, cell);
     }
   }
 }
 
+//Remove fully grown plant from grid and check for win condition
 function harvest() {
-  const cell = internalBoard.getCell(player.x,player.y);
+  const cell = internalBoard.getCell(player.x, player.y);
   switch (cell.content) {
     case "🌽🧍":
-      console.log("harvesting corn");
       cell.content = "";
       player.plants_inventory.push("corn");
       break;
@@ -482,14 +486,15 @@ function harvest() {
       player.plants_inventory.push("tomato");
       break;
   }
+
   if (player.plants_inventory.length > 5) {
     alert("You win!");
     resetGameState();
   }
-  internalBoard.setCell(player.x,player.y,cell);
+
+  internalBoard.setCell(player.x, player.y, cell);
   displayBoard();
   saveGame(internalBoard);
-  //}
 }
 
 //input handling
@@ -518,8 +523,8 @@ document.onkeydown = function (e) {
       break;
     case "e":
       if (
-        internalBoard.getCell(player.x,player.y).content == "" ||
-        internalBoard.getCell(player.x,player.y).content == "🧍"
+        internalBoard.getCell(player.x, player.y).content == "" ||
+        internalBoard.getCell(player.x, player.y).content == "🧍"
       ) {
         useItem();
         break;
@@ -527,37 +532,29 @@ document.onkeydown = function (e) {
   }
 };
 
-function undoGameState(allSaves: gameState[], redoSaves: gameState[], selectedSave: number){
-  if (allSaves.length > 1){
-    const undoSave = allSaves.pop();
-    if (undoSave){
-      redoSaves.push(undoSave);
-      switch(selectedSave){
-        case 0:
-          localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves0", JSON.stringify(redoSaves));
-          break;
-        case 1:
-          localStorage.setItem("gameSaves1", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves1", JSON.stringify(redoSaves));
-          break;
-        case 2:
-          localStorage.setItem("gameSaves2", JSON.stringify(allSaves));
-          localStorage.setItem("redoSaves2", JSON.stringify(redoSaves));
-          break;
-      }
-      loadGame();
-      console.log("Undo!");
-    }
-  }
-}
+function undoRedoGameState(
+  allSaves: gameState[],
+  redoSaves: gameState[],
+  selectedSave: number,
+  undoRedoSelection: string
+) {
+  if (allSaves.length > 1) {
+    let save: gameState | undefined;
 
-function redoGameState(allSaves: gameState[], redoSaves: gameState[], selectedSave: number){
-  if (redoSaves.length > 0){
-    const redoSave = redoSaves.pop();
-    if (redoSave){
-      allSaves.push(redoSave);
-      switch(selectedSave){
+    if (undoRedoSelection == "undo") {
+      save = allSaves.pop();
+      if (save) {
+        redoSaves.push(save);
+      }
+    } else if (undoRedoSelection == "redo") {
+      save = redoSaves.pop();
+      if (save) {
+        allSaves.push(save);
+      }
+    }
+
+    if (save) {
+      switch (selectedSave) {
         case 0:
           localStorage.setItem("gameSaves0", JSON.stringify(allSaves));
           localStorage.setItem("redoSaves0", JSON.stringify(redoSaves));
@@ -572,7 +569,7 @@ function redoGameState(allSaves: gameState[], redoSaves: gameState[], selectedSa
           break;
       }
       loadGame();
-      console.log("Redo!");
+      console.log(undoRedoSelection + "!");
     }
   }
 }
@@ -588,7 +585,7 @@ function saveGame(board: InternalBoard) {
     height: BOARD_HEIGHT,
     grid: Array.from(board.getCells()), // Convert Uint8Array to a regular array
   };
-  switch(selectedSave){
+  switch (selectedSave) {
     case 0:
       allSaves0.push(gameState);
       localStorage.setItem("gameSaves0", JSON.stringify(allSaves0));
@@ -605,10 +602,10 @@ function saveGame(board: InternalBoard) {
   console.log("Game saved!");
 }
 
-function loadGame(){
+function loadGame() {
   let gameSaves = null;
   let rSaves = null;
-  switch(selectedSave){
+  switch (selectedSave) {
     case 0:
       gameSaves = localStorage.getItem("gameSaves0");
       rSaves = localStorage.getItem("redoSaves0");
@@ -622,13 +619,12 @@ function loadGame(){
       rSaves = localStorage.getItem("redoSaves2");
       break;
   }
-  //const gameSaves = localStorage.getItem("gameSaves"); //gameSaves = unparsed array of unparsed stringified game states
-  //const rSaves = localStorage.getItem("redoSaves");
-  if (gameSaves){
+
+  if (gameSaves) {
     const savesToLoad = JSON.parse(gameSaves); // savesToLoad = parsed array of game states
-    if(rSaves){
+    if (rSaves) {
       const redoSavesToLoad = JSON.parse(rSaves);
-      switch(selectedSave){
+      switch (selectedSave) {
         case 0:
           if (redoSavesToLoad) redoSaves0 = redoSavesToLoad;
           break;
@@ -642,7 +638,8 @@ function loadGame(){
     if (savesToLoad) {
       const gameState = savesToLoad[savesToLoad.length - 1]; // gameState = first item of parsed array of game states
       player.plants_inventory = gameState.playerPlants;
-      if(gameState.playerSeeds != undefined)player.seeds_inventory = gameState.playerSeeds;
+      if (gameState.playerSeeds != undefined)
+        player.seeds_inventory = gameState.playerSeeds;
       player.x = gameState.playerX;
       player.y = gameState.playerY;
       currentDay = gameState.currDay;
@@ -652,7 +649,7 @@ function loadGame(){
       topTextFormat +=
         "\nGrowth Rules: Plant needs to have at least 2 sun and 2 water, one neighbor of the same plant";
       topTextFormat += "\n\n Day  " + currentDay + ".";
-      switch(selectedSave){
+      switch (selectedSave) {
         case 0:
           allSaves0 = savesToLoad;
           break;
@@ -666,14 +663,12 @@ function loadGame(){
       internalBoard.setCells(new Uint8Array(gameState.grid)); // Convert back to Uint8Array
       updateDay();
       displayBoard();
-      
+
       console.log("Game loaded");
-    }
-    else{
+    } else {
       alert("Parsing unsuccessful");
     }
-  }
-  else{
+  } else {
     alert("No game saves to load");
   }
 }
